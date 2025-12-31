@@ -1,4 +1,5 @@
 import flet as ft
+import logging
 import time
 import threading
 from echonet import EchonetClient
@@ -260,9 +261,13 @@ def main(page: ft.Page):
 
     # Cleanup on close
     def on_disconnect(e):
-        print("Session disconnected.")
+        logging.info("Session disconnected.")
 
     page.on_disconnect = on_disconnect
 
 if __name__ == "__main__":
-    ft.app(main)
+    ft.run(
+        main,
+        view=ft.AppView.WEB_BROWSER,
+        port=8550,
+    )

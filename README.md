@@ -41,31 +41,22 @@
 
 ## 実行方法
 
-### 1. デスクトップアプリとして実行（Raspberry Pi等）
-HDMIディスプレイ等に直接GUIを表示する場合です。
-
-```bash
-python main.py
-```
-
-### 2. ブラウザでアクセスする場合
+### ブラウザでアクセスする場合
 ヘッドレス環境のRaspberry Piで実行し、PCやスマホのブラウザから閲覧する場合です。
 
 ```bash
-flet run --web --port 8550 main.py
+python main.py 
 ```
+
 実行後、ブラウザで `http://<RaspberryPiのIP>:8550` にアクセスしてください。
 
-### 3. テスト実行（モックモード）
+### 2. テスト実行（モックモード）
 Echonet機器がない環境で、UIの動作確認を行うためのモードです。ランダムなダミーデータが表示されます。
 
 **Mac/Linux:**
 ```bash
 export ECHONET_MOCK=1
 python main.py
-
-# ブラウザ起動の場合
-ECHONET_MOCK=1 flet run --web --port 8550 main.py 
 ```
 
 ## ログについて
