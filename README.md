@@ -73,3 +73,50 @@ WARNING - RX [SmartMeter]: Timed out waiting for response.
 
 - **画面が表示されない場合**: Fletは初回起動時に必要なバイナリをダウンロードすることがあります。インターネット接続を確認してください。
 - **値が更新されない場合**: `TARGET_IP` が正しいか、Raspberry Piがネットワークに接続されているか確認してください。また、ファイアウォールがUDP 3610番ポートをブロックしていないか確認してください。
+
+## supervisorで常駐起動
+
+インストール
+
+```bash
+sudo apt update
+sudo apt install -y supervisor
+```
+
+ステータス確認
+
+```bash
+sudo systemctl status supervisor
+```
+
+config反映
+```bash
+ln -s /home/pi/Work/home-energy-monitor/conf/home_energy_monitor.conf /etc/supervisor/conf.d/home_energy_monitor.conf
+```
+
+設定ファイル確認
+
+```bash
+sudo nano /etc/supervisor/conf.d/home_energy_monitor.conf
+```
+
+supervisorに反映
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+```
+
+起動確認
+
+```bash
+sudo supervisorctl status
+home_energy_monitor   RUNNING   pid 1234, uptime 0:01:23
+```
+
+ログ確認
+
+```bash
+tail -f /home/pi/Work/home-energy-monitor/logs/app.out.log
+tail -f /home/pi/Work/home-energy-monitor/logs/app.err.log
+```
