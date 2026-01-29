@@ -46,7 +46,7 @@ def main(page: ft.Page):
         actions=[
             ft.Container(
                 content=ft.Row([status_indicator, status_text], spacing=5),
-                margin=ft.margin.only(right=20)
+                margin=ft.Margin(0, 0, 20, 0)
             )
         ],
     )
@@ -79,7 +79,7 @@ def main(page: ft.Page):
             color=ft.Colors.with_opacity(0.3, ft.Colors.BLACK),
             offset=ft.Offset(0, 10),
         ),
-        col={"xs": 12, "md": 7},
+        col=12,
     )
 
     cons_val = ft.Text("-- W", size=24, weight=ft.FontWeight.BOLD)
@@ -96,8 +96,13 @@ def main(page: ft.Page):
         padding=20,
         border_radius=15,
         bgcolor=ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
-        border=ft.border.all(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
-        col={"xs": 12, "sm": 6},
+        border=ft.Border(
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+        ),
+        col=12,
     )
 
     gen_card = ft.Container(
@@ -111,19 +116,25 @@ def main(page: ft.Page):
         padding=20,
         border_radius=15,
         bgcolor=ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
-        border=ft.border.all(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
-        col={"xs": 12, "sm": 6},
+        border=ft.Border(
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+        ),
+        col=12,
     )
+
+    layout = ft.ResponsiveRow([
+        net_card_bg,
+        cons_card,
+        gen_card
+    ], spacing=20)
 
     body = ft.Container(
         content=ft.Column([
-            ft.ResponsiveRow([
-                net_card_bg,
-                ft.Column([
-                    ft.ResponsiveRow([cons_card, gen_card], spacing=20)
-                ], col={"xs": 12, "md": 5})
-            ], spacing=20, alignment=ft.MainAxisAlignment.CENTER),
-        ], scroll=ft.ScrollMode.AUTO),
+            ft.Container(content=layout, width=400)
+        ], scroll=ft.ScrollMode.AUTO, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
         padding=20,
         expand=True,
     )
