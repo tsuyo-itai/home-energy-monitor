@@ -23,6 +23,9 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.DARK
     page.padding = 0
     page.bgcolor = "#1a1a1a"
+    page.window_width = 400
+    page.window_height = 800
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
     # ---------------- UI ----------------
 
@@ -137,6 +140,7 @@ def main(page: ft.Page):
         ], scroll=ft.ScrollMode.AUTO, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
         padding=20,
         expand=True,
+        alignment=ft.Alignment(0, -1), # Top Center
     )
 
     page.add(body)
@@ -144,6 +148,7 @@ def main(page: ft.Page):
     # ---------------- async UI updater ----------------
 
     async def update_data():
+        last_ts = 0
         while True:
             data = client.get_data()
             if data["last_updated"] == 0:
@@ -180,7 +185,9 @@ def main(page: ft.Page):
                 status_indicator.bgcolor = ft.Colors.ORANGE_400
                 net_card_bg.gradient.colors = [ft.Colors.RED_400, ft.Colors.BLACK]
 
-            last_updated_text.value = f"最終更新: {datetime.now().strftime('%H:%M:%S')}"
+            if data["last_updated"] != last_ts:
+                last_ts = data["last_updated"]
+                last_updated_text.value = f"最終更新: {datetime.fromtimestamp(last_ts).strftime('%H:%M:%S')}"
 
             page.update()
             await asyncio.sleep(1)
