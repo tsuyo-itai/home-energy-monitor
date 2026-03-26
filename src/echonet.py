@@ -3,6 +3,7 @@ import threading
 import time
 import binascii
 import logging
+import random
 
 # Logging configuration
 logging.basicConfig(
@@ -29,9 +30,6 @@ class EchonetClient:
         self.running = False
         self.lock = threading.Lock()
         
-        # Mock data state
-        self._mock_cons_dir = 1
-        self._mock_gen_dir = 1
 
     def parse_smart_meter_response(self, data):
         try:
@@ -133,19 +131,10 @@ class EchonetClient:
 
     def _update_mock_data(self):
         with self.lock:
-            # Random walk for demo
-            change_cons = 100 * self._mock_cons_dir
-            self.consumption += change_cons
-            if self.consumption > 3000: self._mock_cons_dir = -1
-            if self.consumption < -2000: self._mock_cons_dir = 1
-            
-            change_gen = 150 * self._mock_gen_dir
-            self.generation += change_gen
-            if self.generation > 4500: self._mock_gen_dir = -1
-            if self.generation < 0: 
-                self.generation = 0
-                self._mock_gen_dir = 1
-            
+            self.generation = random.randint(0, 5000)
+            actual_consumption = random.randint(0, 5000)
+            # スマートメーター値 = 消費 - 発電（正=買電、負=売電）
+            self.consumption = actual_consumption - self.generation
             self.last_updated = time.time()
             logger.info(f"MOCK DATA: Cons={self.consumption}, Gen={self.generation}")
 

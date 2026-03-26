@@ -12,10 +12,12 @@ MOCK_MODE = os.getenv("ECHONET_MOCK") == "1"
 client = EchonetClient(mock=MOCK_MODE)
 client.start()
 
-# 充電推奨しきい値
-CHARGE_HIGH_RECOMMENDATION_THRESHOLD = 2500
-CHARGE_NORMAL_RECOMMENDATION_THRESHOLD = 1500
-CHARGE_LOW_RECOMMENDATION_THRESHOLD = 750
+# EV充電推奨しきい値 (W)
+CHARGE_LEVEL5_THRESHOLD = 3000  # 充電最適
+CHARGE_LEVEL4_THRESHOLD = 2000  # 充電良好
+CHARGE_LEVEL3_THRESHOLD = 1000  # 充電可能
+CHARGE_LEVEL2_THRESHOLD = 0     # 充電注意（少し買電増）
+# それ以下: 充電しない方が良い
 
 
 def main(page: ft.Page):
@@ -85,6 +87,35 @@ def main(page: ft.Page):
         col=12,
     )
 
+    # EV充電指標
+    charge_icon = ft.Icon(ft.Icons.EV_STATION, size=28, color=ft.Colors.WHITE)
+    charge_label = ft.Text("EV充電", size=12, color=ft.Colors.WHITE_54)
+    charge_status_text = ft.Text("計測中...", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE)
+    charge_advice_text = ft.Text("", size=12, color=ft.Colors.WHITE70)
+
+    charge_card = ft.Container(
+        content=ft.Column([
+            ft.Row([
+                charge_icon,
+                ft.Column([
+                    charge_label,
+                    charge_status_text,
+                    charge_advice_text,
+                ], spacing=2, alignment=ft.MainAxisAlignment.CENTER),
+            ], spacing=12, alignment=ft.MainAxisAlignment.CENTER),
+        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+        padding=20,
+        border_radius=15,
+        bgcolor=ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
+        border=ft.Border(
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+            ft.BorderSide(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+        ),
+        col=12,
+    )
+
     cons_val = ft.Text("-- W", size=24, weight=ft.FontWeight.BOLD)
     gen_val = ft.Text("-- W", size=24, weight=ft.FontWeight.BOLD)
 
@@ -130,6 +161,7 @@ def main(page: ft.Page):
 
     layout = ft.ResponsiveRow([
         net_card_bg,
+        charge_card,
         cons_card,
         gen_card
     ], spacing=20)
@@ -170,6 +202,38 @@ def main(page: ft.Page):
 
             prefix = "+" if net > 0 else ""
             net_power_val.value = f"{prefix}{net} W"
+
+            # EV充電指標更新（5段階）
+            if net >= CHARGE_LEVEL5_THRESHOLD:
+                charge_status_text.value = "充電最適"
+                charge_status_text.color = ft.Colors.GREEN_400
+                charge_icon.color = ft.Colors.GREEN_400
+                charge_advice_text.value = f"余剰 {net} W ─ フル充電OK"
+                charge_card.bgcolor = ft.Colors.with_opacity(0.12, ft.Colors.GREEN)
+            elif net >= CHARGE_LEVEL4_THRESHOLD:
+                charge_status_text.value = "充電良好"
+                charge_status_text.color = ft.Colors.LIGHT_GREEN_400
+                charge_icon.color = ft.Colors.LIGHT_GREEN_400
+                charge_advice_text.value = f"余剰 {net} W ─ 通常充電推奨"
+                charge_card.bgcolor = ft.Colors.with_opacity(0.10, ft.Colors.LIGHT_GREEN)
+            elif net >= CHARGE_LEVEL3_THRESHOLD:
+                charge_status_text.value = "充電可能"
+                charge_status_text.color = ft.Colors.YELLOW_400
+                charge_icon.color = ft.Colors.YELLOW_400
+                charge_advice_text.value = f"余剰 {net} W ─ 低速充電推奨"
+                charge_card.bgcolor = ft.Colors.with_opacity(0.10, ft.Colors.YELLOW)
+            elif net >= CHARGE_LEVEL2_THRESHOLD:
+                charge_status_text.value = "充電注意"
+                charge_status_text.color = ft.Colors.ORANGE_400
+                charge_icon.color = ft.Colors.ORANGE_400
+                charge_advice_text.value = f"余剰 {net} W ─ 買電が少し増えます"
+                charge_card.bgcolor = ft.Colors.with_opacity(0.10, ft.Colors.ORANGE)
+            else:
+                charge_status_text.value = "充電しない方が良い"
+                charge_status_text.color = ft.Colors.RED_400
+                charge_icon.color = ft.Colors.RED_400
+                charge_advice_text.value = f"買電 {-net} W ─ 充電すると更に増えます"
+                charge_card.bgcolor = ft.Colors.with_opacity(0.10, ft.Colors.RED)
 
             # 状態表示
             if net > 0:
